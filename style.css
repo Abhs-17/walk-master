@@ -254,6 +254,24 @@ main {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
+.btn-lazy-vision {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+.btn-lazy-vision:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.btn-joke {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+}
+.btn-joke:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
