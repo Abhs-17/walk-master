@@ -9,6 +9,8 @@ class CouchCommander {
         this.achievements = [];
         this.backgroundChangeInterval = null;
         this.currentMode = 'stillness';
+        this.cameraStream = null;
+        this.isCameraActive = false;
 
         // DOM elements
         this.modeSelection = document.getElementById('modeSelection');
@@ -24,6 +26,13 @@ class CouchCommander {
         this.achievementsContainer = document.getElementById('achievements');
         this.currentModeTitle = document.getElementById('currentModeTitle');
         this.changeModeBtn = document.getElementById('changeModeBtn');
+        
+        // New DOM elements for camera functionality and new modes
+        this.lazyVisionBtn = document.getElementById('lazyVisionBtn');
+        this.dadJokeBtn = document.getElementById('dadJokeBtn');
+        this.video = document.getElementById('video');
+        this.canvas = document.getElementById('canvas');
+        this.videoContainer = document.getElementById('video-container');
 
         // Mode configurations
         this.modes = {
@@ -78,6 +87,18 @@ class CouchCommander {
                     "The sensors say you're walking backwards through time.",
                     "Your inactivity is so intense, it's creating negative energy."
                 ]
+            },
+            lazyVision: {
+                title: 'Lazy Vision',
+                stat1Title: 'AI Analysis',
+                stat2Title: 'Lazy Score',
+                quotes: []
+            },
+            dadJokes: {
+                title: 'Dad Jokes',
+                stat1Title: 'Joke Counter',
+                stat2Title: 'Chuckles Earned',
+                quotes: []
             }
         };
 
@@ -98,9 +119,211 @@ class CouchCommander {
         this.stopBtn.addEventListener('click', () => this.stopInactivity());
         this.changeModeBtn.addEventListener('click', () => this.showModeSelection());
 
+        // New event listeners for the lazy features
+        this.lazyVisionBtn.addEventListener('click', () => {
+            if (!this.isCameraActive) {
+                this.startCamera();
+            } else {
+                this.fetchVisionLazyTask();
+            }
+        });
+        this.dadJokeBtn.addEventListener('click', () => this.fetchFunnyJoke());
+
         // Request device motion permission
         if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
             this.startBtn.addEventListener('click', () => this.requestMotionPermission());
+        }
+    }
+    
+    // New function to start the camera stream
+    async startCamera() {
+        try {
+            this.stopInactivity();
+            this.statusMessage.textContent = 'Opening camera...';
+
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            this.cameraStream = stream;
+            this.video.srcObject = stream;
+            this.videoContainer.classList.add('active');
+            this.isCameraActive = true;
+            this.lazyVisionBtn.textContent = 'Capture & Analyze';
+            
+            this.video.onloadedmetadata = () => {
+                this.statusMessage.textContent = 'Camera is live! Click "Capture & Analyze" to get your task.';
+                this.quoteDisplay.textContent = 'What lazy task awaits you?';
+            };
+        } catch (error) {
+            console.error("Error accessing camera:", error);
+            this.statusMessage.textContent = 'Camera access denied or not available.';
+            this.lazyVisionBtn.textContent = 'Lazy Vision 👀';
+            this.stopCamera();
+        }
+    }
+
+    // New function to stop the camera stream
+    stopCamera() {
+        if (this.cameraStream) {
+            this.cameraStream.getTracks().forEach(track => track.stop());
+            this.cameraStream = null;
+            this.videoContainer.classList.remove('active');
+            this.isCameraActive = false;
+            this.lazyVisionBtn.textContent = 'Lazy Vision 👀';
+        }
+    }
+
+    // New function to take a picture and send to Gemini for a vision-based task
+    async fetchVisionLazyTask() {
+        this.statusMessage.textContent = 'Analyzing your laziness...';
+        this.quoteDisplay.textContent = 'The AI is contemplating your surroundings.';
+        
+        const context = this.canvas.getContext('2d');
+        this.canvas.width = this.video.videoWidth;
+        this.canvas.height = this.video.videoHeight;
+        context.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+        
+        const base64ImageData = this.canvas.toDataURL('image/jpeg').split(',')[1];
+        
+        const prompt = "Based on this image, suggest a single, simple, and incredibly lazy task. For example, if you see a remote control, you might suggest 'Just imagine changing the channel.'";
+        
+        const payload = {
+            contents: [
+                {
+                    role: "user",
+                    parts: [
+                        { text: prompt },
+                        {
+                            inlineData: {
+                                mimeType: "image/jpeg",
+                                data: base64ImageData
+                            }
+                        }
+                    ]
+                }
+            ],
+        };
+        
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        let response;
+        let delay = 1000;
+        let success = false;
+        for (let i = 0; i < 3; i++) {
+            try {
+                response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    success = true;
+                    break;
+                }
+            } catch (error) {
+                // Retry on network errors
+            }
+            await new Promise(res => setTimeout(res, delay));
+            delay *= 2;
+        }
+
+        if (!success) {
+            this.quoteDisplay.textContent = "Failed to fetch from API. Maybe that's a task in itself?";
+            this.statusMessage.textContent = 'Error during AI analysis.';
+            this.stopCamera();
+            throw new Error("Failed to fetch from API after multiple retries.");
+        }
+
+        const result = await response.json();
+        
+        let finalTask = "Could not generate a task from the image.";
+        if (result.candidates && result.candidates.length > 0 &&
+            result.candidates[0].content && result.candidates[0].content.parts &&
+            result.candidates[0].content.parts.length > 0) {
+            finalTask = result.candidates[0].content.parts[0].text;
+        }
+        
+        this.quoteDisplay.textContent = finalTask.trim();
+        this.statusMessage.textContent = 'New lazy task received!';
+        this.stopCamera();
+    }
+
+    // New function to fetch a list of lazy tasks from the Gemini API
+    async fetchLazyTask() {
+        this.statusMessage.textContent = 'Generating a lazy task...';
+
+        const prompt = "Generate a single, funny and sarcastic lazy task. The task should be a witty and short, single sentence. Do not include any numbers or bullet points.";
+        
+        let chatHistory = [];
+        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+        const payload = { contents: chatHistory };
+        
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        let response;
+        let delay = 1000;
+        let success = false;
+        for (let i = 0; i < 3; i++) {
+            try {
+                response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    success = true;
+                    break;
+                }
+            } catch (error) {
+                // Retry on network errors
+            }
+            await new Promise(res => setTimeout(res, delay));
+            delay *= 2;
+        }
+
+        if (!success) {
+            this.quoteDisplay.textContent = "Failed to fetch from API. Maybe that's a task in itself?";
+            this.statusMessage.textContent = 'Error during task generation.';
+            throw new Error("Failed to fetch from API after multiple retries.");
+        }
+
+        const result = await response.json();
+        
+        if (result.candidates && result.candidates.length > 0 &&
+            result.candidates[0].content && result.candidates[0].content.parts &&
+            result.candidates[0].content.parts.length > 0) {
+            
+            const text = result.candidates[0].content.parts[0].text;
+            this.quoteDisplay.textContent = text.trim();
+            this.statusMessage.textContent = 'New lazy task generated!';
+        } else {
+            this.quoteDisplay.textContent = "Could not generate a lazy task.";
+            this.statusMessage.textContent = 'Error during task generation.';
+        }
+    }
+
+    // New function to fetch a dad joke from an external API
+    async fetchFunnyJoke() {
+        this.statusMessage.textContent = 'Fetching a dad joke...';
+
+        try {
+            const response = await fetch('https://icanhazdadjoke.com/', {
+                headers: { 'Accept': 'application/json' }
+            });
+            const result = await response.json();
+            if (result && result.joke) {
+                this.quoteDisplay.textContent = result.joke;
+                this.statusMessage.textContent = 'Here is a joke for you!';
+                this.sedentaryScore++; // Increment joke counter
+                this.updateStats();
+            } else {
+                this.quoteDisplay.textContent = "Couldn't get a joke. My apologies for the lack of humor.";
+                this.statusMessage.textContent = 'Error fetching joke.';
+            }
+        } catch (error) {
+            console.error('Error fetching joke:', error);
+            this.quoteDisplay.textContent = "My joke-fetching circuits are on vacation. Try again later!";
+            this.statusMessage.textContent = 'Error fetching joke.';
         }
     }
 
@@ -108,6 +331,25 @@ class CouchCommander {
         this.currentMode = mode;
         const modeConfig = this.modes[mode];
         
+        // Hide all extra buttons and camera elements
+        this.lazyVisionBtn.style.display = 'none';
+        this.dadJokeBtn.style.display = 'none';
+        this.startBtn.style.display = 'inline-block';
+        this.stopBtn.style.display = 'inline-block';
+        this.videoContainer.classList.remove('active');
+        this.stopCamera();
+
+        // Show specific buttons and elements based on mode
+        if (mode === 'lazyVision') {
+            this.lazyVisionBtn.style.display = 'inline-block';
+            this.startBtn.style.display = 'none';
+            this.stopBtn.style.display = 'none';
+        } else if (mode === 'dadJokes') {
+            this.dadJokeBtn.style.display = 'inline-block';
+            this.startBtn.style.display = 'none';
+            this.stopBtn.style.display = 'none';
+        }
+
         // Update UI
         this.currentModeTitle.textContent = `Mode: ${modeConfig.title}`;
         this.stat1Title.textContent = modeConfig.stat1Title;
@@ -126,6 +368,7 @@ class CouchCommander {
 
     showModeSelection() {
         this.stopInactivity();
+        this.stopCamera(); // Ensure camera is stopped when changing modes
         this.appSection.style.display = 'none';
         this.modeSelection.style.display = 'block';
     }
@@ -148,6 +391,7 @@ class CouchCommander {
         this.isActive = true;
         this.startBtn.disabled = true;
         this.stopBtn.disabled = false;
+        this.stopCamera();
         
         // Mode-specific start messages
         switch (this.currentMode) {
@@ -257,6 +501,15 @@ class CouchCommander {
             case 'unreliable':
                 this.sedentaryScore = Math.floor(this.inactivityTime / 12);
                 this.stat2Value.textContent = `${this.sedentaryScore} Unburned Calories`;
+                break;
+            case 'lazyVision':
+                this.sedentaryScore = 0; // Not a timed mode
+                this.stat1Value.textContent = '--';
+                this.stat2Value.textContent = `${this.sedentaryScore} Lazy Score`;
+                break;
+            case 'dadJokes':
+                this.stat1Value.textContent = `${this.sedentaryScore} Chuckles Earned`;
+                this.stat2Value.textContent = '--';
                 break;
         }
     }
@@ -368,8 +621,10 @@ class CouchCommander {
 
     showRandomQuote() {
         const modeConfig = this.modes[this.currentMode];
-        const randomQuote = modeConfig.quotes[Math.floor(Math.random() * modeConfig.quotes.length)];
-        this.quoteDisplay.textContent = randomQuote;
+        if (modeConfig.quotes.length > 0) {
+            const randomQuote = modeConfig.quotes[Math.floor(Math.random() * modeConfig.quotes.length)];
+            this.quoteDisplay.textContent = randomQuote;
+        }
     }
 
     showFinalMessage() {
@@ -385,6 +640,10 @@ class CouchCommander {
                 break;
             case 'unreliable':
                 this.quoteDisplay.textContent = 'Session complete. Your stats are probably wrong, but who cares?';
+                break;
+            case 'lazyVision':
+            case 'dadJokes':
+                this.quoteDisplay.textContent = 'Go back to the mode selection to choose a new task!';
                 break;
         }
     }
