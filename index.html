@@ -34,6 +34,15 @@
                         <h3>🤪 Unreliable Metrics</h3>
                         <p>Bizarre tracking that makes no sense. Perfect for those who love confusion!</p>
                     </div>
+                    <!-- New mode cards for lazy features -->
+                    <div class="mode-card" data-mode="lazyVision">
+                        <h3>👀 Lazy Vision</h3>
+                        <p>Uses your camera and AI to find the perfect lazy task for your environment.</p>
+                    </div>
+                    <div class="mode-card" data-mode="dadJokes">
+                        <h3>😂 Dad Jokes</h3>
+                        <p>Dedicated to the laziest form of humor. Sit back and let the jokes come to you!</p>
+                    </div>
                 </div>
             </div>
 
@@ -49,6 +58,12 @@
                         Ready to find your inner stillness?
                     </div>
                 </div>
+
+                <!-- Video and Canvas for camera capture -->
+                <div id="video-container" class="video-container">
+                    <video id="video" playsinline autoplay></video>
+                </div>
+                <canvas id="canvas" style="display:none;"></canvas>
 
                 <div class="stats-section">
                     <div class="stat-card">
@@ -68,6 +83,10 @@
                 </div>
 
                 <div class="controls-section">
+                    <!-- New buttons for lazy features -->
+                    <button class="btn btn-lazy-vision" id="lazyVisionBtn" style="display:none;">Lazy Vision 👀</button>
+                    <button class="btn btn-joke" id="dadJokeBtn" style="display:none;">Tell me a Dad Joke 😂</button>
+                    <!-- Original buttons -->
                     <button class="btn btn-start" id="startBtn">Start Not Moving</button>
                     <button class="btn btn-stop" id="stopBtn" disabled>Stop Being Lazy</button>
                 </div>
