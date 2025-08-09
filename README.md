@@ -53,7 +53,7 @@ Just double-click `index.html` and select your desired mode of inactivity.
 #### For Software
 
 # Screenshots (Add at least 3)
-![Screenshot1](Add screenshot of mode selection here)
+
 *Mode selection screen showing all 4 hilarious modes*
 
 ![Screenshot2](Add screenshot of inactivity timer here)
@@ -96,3 +96,4 @@ Just double-click `index.html` and select your desired mode of inactivity.
 Made with ❤️ at TinkerHub Useless Projects 
 
 ![Static Badge](https://img.shields.io/badge/TinkerHub-24?color=%](https://img.shields.io/b exploring the absurd art of staying still—become the ultimate Couch Commander today!
+
