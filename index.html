@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Couch Commander - Inactivity Master</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛋️ Couch Commander</h1>
+            <p class="subtitle">Mastering the Art of Doing Nothing</p>
+        </header>
+
+        <main>
+            <!-- Mode Selection Section -->
+            <div class="mode-selection" id="modeSelection">
+                <h2>Choose Your Inactivity Mode</h2>
+                <div class="mode-grid">
+                    <div class="mode-card" data-mode="stillness">
+                        <h3>🧘 Stillness Master</h3>
+                        <p>Find inner peace through perfect stillness. Meditate on your couch and earn zen points.</p>
+                    </div>
+                    <div class="mode-card" data-mode="laziness">
+                        <h3>😴 Laziness Celebrator</h3>
+                        <p>Embrace your inner sloth! Celebrate doing nothing and become a laziness champion.</p>
+                    </div>
+                    <div class="mode-card" data-mode="negative">
+                        <h3>👎 Negative Feedback</h3>
+                        <p>For those who need tough love. Gets angry when you move, praises perfect stillness.</p>
+                    </div>
+                    <div class="mode-card" data-mode="unreliable">
+                        <h3>🤪 Unreliable Metrics</h3>
+                        <p>Bizarre tracking that makes no sense. Perfect for those who love confusion!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main App Section (Hidden initially) -->
+            <div class="app-section" id="appSection" style="display: none;">
+                <div class="mode-info">
+                    <h3 id="currentModeTitle">Mode: Stillness Master</h3>
+                    <button class="btn btn-secondary" id="changeModeBtn">Change Mode</button>
+                </div>
+
+                <div class="status-section">
+                    <div class="status-message" id="statusMessage">
+                        Ready to find your inner stillness?
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <h3 id="stat1Title">Meditation Timer</h3>
+                        <div class="stat-value" id="stat1Value">00:00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="stat2Title">Zen Points</h3>
+                        <div class="stat-value" id="stat2Value">0 Points</div>
+                    </div>
+                </div>
+
+                <div class="quote-section">
+                    <div class="quote-display" id="quoteDisplay">
+                        In stillness, you find the true meaning of doing nothing.
+                    </div>
+                </div>
+
+                <div class="controls-section">
+                    <button class="btn btn-start" id="startBtn">Start Not Moving</button>
+                    <button class="btn btn-stop" id="stopBtn" disabled>Stop Being Lazy</button>
+                </div>
+
+                <div class="achievements-section">
+                    <div class="achievements" id="achievements">
+                        <!-- Achievements will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2024 Couch Commander - Making Inactivity an Art Form Since Forever</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
