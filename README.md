@@ -43,29 +43,14 @@ Just double-click index.html and select your desired mode of inactivity.
 For Software:
 
 # Screenshots 
-!(interface)
-*Main pages*
 
-![Screenshot2](show lazy tasks)
-*Laizy tasks*
 
-![Screenshot3](lazyness meters)
-*different lazines promotions*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
 
 Made with ❤️ at TinkerHub Useless Projects 
 
 ![Static Badge](https://img.shields.io/badge/TinkerHub-24?color=%23000000&link=https%3A%2F%2Fwww.tinkerhub.org%2F)
 ![Static Badge](https://img.shields.io/badge/UselessProjects--25-25?link=https%3A%2F%2Fwww.tinkerhub.org%2Fevents%2FQ2Q1TQKX6Q%2FUseless%2520Projects)
+
 
 
 
